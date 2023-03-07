@@ -91,9 +91,9 @@ app.post("/login", async (request, response) => {
 app.get("/members", auth, async (request, response) => {
   const usertype = request.header("usertype");
   const Role = {
-    manager: manager,
-    employee: employee,
-    admin: admin,
+    manager: "manager",
+    employee: "employee",
+    admin: "admin",
   };
   if (usertype == Role.admin) {
     const data = await client
@@ -112,9 +112,9 @@ app.get("/members", auth, async (request, response) => {
 app.get("/userlist", auth, async (request, response) => {
   const usertype = request.header("usertype");
   const Role = {
-    manager: manager,
-    employee: employee,
-    admin: admin,
+    manager: "manager",
+    employee: "employee",
+    admin: "admin",
   };
   if (usertype == Role.admin) {
     const data = await client
@@ -131,9 +131,9 @@ app.get("/userlist", auth, async (request, response) => {
 app.get("/userlist/:id", async (request, response) => {
   const usertype = request.header("usertype");
   const Role = {
-    manager: manager,
-    employee: employee,
-    admin: admin,
+    manager: "manager",
+    employee: "employee",
+    admin: "admin",
   };
   if (
     usertype == Role.admin ||
@@ -155,9 +155,9 @@ app.get("/userlist/:id", async (request, response) => {
 app.put("/edituser/:id", async (request, response) => {
   const usertype = request.header("usertype");
   const Role = {
-    manager: manager,
-    employee: employee,
-    admin: admin,
+    manager: "manager",
+    employee: "employee",
+    admin: "admin",
   };
 
   if (usertype == Role.admin || usertype == Role.manager) {
@@ -179,9 +179,9 @@ app.put("/edituser/:id", async (request, response) => {
 app.delete("/deleteuser/:id", async (request, response) => {
   const usertype = request.header("usertype");
   const Role = {
-    manager: manager,
-    employee: employee,
-    admin: admin,
+    manager: "manager",
+    employee: "employee",
+    admin: "admin",
   };
 
   if (usertype == Role.admin) {
@@ -228,8 +228,8 @@ app.post("/mail", async (request, response) => {
     server: "gmail.com",
     host: "smtp.gmail.com",
     auth: {
-      user: "",
-      pass: "",
+      user: "sathiyapramod22@gmail.com",
+      pass: process.env.password,
     },
   });
   let composemail = {
@@ -252,6 +252,34 @@ app.post("/mail", async (request, response) => {
     }
   });
 });
+//verification
+app.post("/verification/:id", async (request, response) => {
+  const passcode = request.body;
+  const { id } = request.params;
+  const data = await client
+    .db("crm")
+    .collection("signupusers")
+    .find({ _id: new ObjectId(id) });
+  if (data.otp == passcode) response.send(data);
+  else res.status(404).json({ message: "Invalid Verification Code" });
+});
+
+//updatepassword
+app.post("updatepassword/:id", async (request, response) => {
+  const { id } = request.params;
+  const password = request.body;
+  const data = await client
+    .db("crm")
+    .collection("signupusers")
+    .findOneAndUpdate(
+      { _id: new ObjectId(id) },
+      { $set: { password: password } }
+    );
+    await client.db("crm").collection('signupusers').findOneAndUpdate({ _id: new ObjectId(id) }, { $unset: { "otp": 1 } }, false, true);
+    data ? 
+    response.send({"message":"Password updated successfully !!"})
+    : response.status(404).send({"message":"Failed to Update !!!"})
+  });
 
 //Add user - access enabled for Manager/admin
 app.post("/adduser", async (request, response) => {
