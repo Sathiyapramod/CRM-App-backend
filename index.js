@@ -25,7 +25,7 @@ app.use(cors());
 app.use("/contact", contactRouter);
 app.use("/lead", leadRouter);
 
-const PORT = 4000;
+const PORT = process.env.PORT;
 
 const MONGO_URL = process.env.MONGO_URL;
 const client = new MongoClient(MONGO_URL); //dialing operation
