@@ -10,6 +10,7 @@ import * as dotenv from "dotenv";
 import express from "express";
 import contactRouter from "./router/contact.router.js";
 import leadRouter from "./router/lead.router.js";
+import userRouter from "./router/user.router.js";
 
 dotenv.config();
 
@@ -20,15 +21,16 @@ const options = {
 };
 
 const app = express();
-app.use(express.json());
 app.use(cors());
+app.use(express.json());
 app.use("/contact", contactRouter);
 app.use("/lead", leadRouter);
+app.use("/user", userRouter);
 
 const PORT = process.env.PORT;
 
 const MONGO_URL = process.env.MONGO_URL;
-const client = new MongoClient(MONGO_URL); //dialing operation
+export const client = new MongoClient(MONGO_URL); //dialing operation
 await client.connect(); //calling operation
 
 async function generateHashedPasswords(password) {
@@ -40,7 +42,6 @@ async function generateHashedPasswords(password) {
 
 //Sample Welcome Page
 app.get("/", (request, response) => {
-  console.log("Hello World");
   response.send({ Message: "Welcome to CRM app" });
 });
 
@@ -72,18 +73,24 @@ app.post("/login", async (request, response) => {
     .db("crm")
     .collection("signupusers")
     .findOne({ username: username });
-  console.log(userfromDB);
+
   if (!userfromDB) response.send({ message: "user not found" });
   else {
     const storedpassword = userfromDB.password;
-    console.log(storedpassword);
+
     const isPasswordvalid = await bcrypt.compare(password, storedpassword);
-    console.log(isPasswordvalid);
+
     if (!isPasswordvalid) {
       response.status(404).send({ message: "Invalid Password" });
     }
     const token = jwt.sign({ id: userfromDB._id }, process.env.SECRET);
-    response.send({ message: "Success", token, usertype: userfromDB.usertype });
+    response.send({
+      message: "Success",
+      token,
+      usertype: userfromDB.usertype,
+      firstname: userfromDB.firstname,
+      lastname: userfromDB.lastname,
+    });
   }
 });
 
@@ -107,95 +114,6 @@ app.get("/members", auth, async (request, response) => {
           .status(404)
           .send({ message: "Failed to Load CRM members !! " });
   } else response.status(401).send({ message: "Unauthorized Access" });
-});
-//to Get Userlists
-app.get("/userlist", auth, async (request, response) => {
-  const usertype = request.header("usertype");
-  const Role = {
-    manager: "manager",
-    employee: "employee",
-    admin: "admin",
-  };
-  if (usertype == Role.admin) {
-    const data = await client
-      .db("crm")
-      .collection("signupusers")
-      .find({})
-      .toArray();
-    data
-      ? response.send(data)
-      : response.status(404).send({ message: "Failed to load users lists !!" });
-  } else response.status(401).send({ message: "Unauthorized Access" });
-});
-
-app.get("/userlist/:id", async (request, response) => {
-  const usertype = request.header("usertype");
-  const Role = {
-    manager: "manager",
-    employee: "employee",
-    admin: "admin",
-  };
-  if (
-    usertype == Role.admin ||
-    usertype == Role.employee ||
-    usertype == Role.manager
-  ) {
-    const { id } = request.params;
-    console.log(id);
-    const data = await client
-      .db("crm")
-      .collection("signupusers")
-      .findOne({ _id: new ObjectId(id) });
-    data
-      ? response.send(data)
-      : response.status(404).send({ message: "Failed to Load user " });
-  } else response.status(401).send({ message: "Unauthorized Access" });
-});
-//to edit particular user
-app.put("/edituser/:id", async (request, response) => {
-  const usertype = request.header("usertype");
-  const Role = {
-    manager: "manager",
-    employee: "employee",
-    admin: "admin",
-  };
-
-  if (usertype == Role.admin || usertype == Role.manager) {
-    const updatedUser = request.body;
-    console.log(updatedUser);
-    const { id } = request.params;
-    console.log(id);
-    const updatedList = await client
-      .db("crm")
-      .collection("signupusers")
-      .updateMany({ _id: new ObjectId(id) }, { $set: updatedUser });
-    updatedList.modifiedCount == 1
-      ? response.send({ message: "Updated User successfully " })
-      : response.status(404).send({ message: "Failed to update user !! " });
-  } else response.status(401).send({ message: "Unauthorized Access" });
-});
-
-//to delete a particular user
-app.delete("/deleteuser/:id", async (request, response) => {
-  const usertype = request.header("usertype");
-  const Role = {
-    manager: "manager",
-    employee: "employee",
-    admin: "admin",
-  };
-
-  if (usertype == Role.admin) {
-    const { id } = request.params;
-    const data = await client
-      .db("crm")
-      .collection("signupusers")
-      .deleteOne({ _id: new ObjectId(id) });
-    data
-      ? response.send({ message: "User deleted Successfully " })
-      : response.status(404).send({ message: "Failed to Delete the user !" });
-  } else {
-    response.status(401).send({ message: "Unauthorized Access !!" });
-  }
 });
 
 //Forgot password
@@ -275,11 +193,19 @@ app.post("updatepassword/:id", async (request, response) => {
       { _id: new ObjectId(id) },
       { $set: { password: password } }
     );
-    await client.db("crm").collection('signupusers').findOneAndUpdate({ _id: new ObjectId(id) }, { $unset: { "otp": 1 } }, false, true);
-    data ? 
-    response.send({"message":"Password updated successfully !!"})
-    : response.status(404).send({"message":"Failed to Update !!!"})
-  });
+  await client
+    .db("crm")
+    .collection("signupusers")
+    .findOneAndUpdate(
+      { _id: new ObjectId(id) },
+      { $unset: { otp: 1 } },
+      false,
+      true
+    );
+  data
+    ? response.send({ message: "Password updated successfully !!" })
+    : response.status(404).send({ message: "Failed to Update !!!" });
+});
 
 //Add user - access enabled for Manager/admin
 app.post("/adduser", async (request, response) => {
