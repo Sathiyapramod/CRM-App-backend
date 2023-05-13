@@ -26,7 +26,6 @@ app.use(express.json());
 app.use("/contact", contactRouter);
 app.use("/lead", leadRouter);
 app.use("/user", userRouter);
-app.use("/photo", photo);
 
 const PORT = process.env.PORT;
 
