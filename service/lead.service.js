@@ -22,6 +22,15 @@ export async function getLeadbyId(id) {
 export async function getLeads() {
   return await client.db("crm").collection("leads").find({}).toArray();
 }
-export async function createNewLead(newLead) {
-  return await client.db("crm").collection("leads").insertMany(newLead);
+
+export async function createNewLead(leadname, company, email, phone, leadsource) {
+  return await client.db("crm").collection("leads").insertOne({
+    leadname,
+    company,
+    email,
+    phone,
+    leadsource
+  });
 }
+
+

@@ -1,5 +1,11 @@
 import express from "express";
-import { createNewLead, getLeads, getLeadbyId, updateLeadbyId, deleteLeadbyId } from "../service/lead.service.js";
+import {
+  createNewLead,
+  getLeads,
+  getLeadbyId,
+  updateLeadbyId,
+  deleteLeadbyId,
+} from "../service/lead.service.js";
 const router = express.Router();
 
 //adding Lead CRUD applications
@@ -14,8 +20,16 @@ router.post("/lead", async (request, response) => {
   };
 
   if (usertype != Role.employee) {
-    const newLead = request.body;
-    const data = await createNewLead(newLead);
+    const { leadname, company, email, phone, leadsource } = request.body;
+
+    const data = await createNewLead(
+      leadname,
+      company,
+      email,
+      phone,
+      leadsource
+    );
+
     data
       ? response.send({ message: "New Lead created !!!" })
       : response.status(404).send({ message: "Failed to create Lead " });
@@ -46,9 +60,9 @@ router.get("/", async (request, response) => {
 router.get("/:id", async (request, response) => {
   const usertype = request.header("usertype");
   const Role = {
-    manager: manager,
-    employee: employee,
-    admin: admin,
+    manager: "manager",
+    employee: "employee",
+    admin: "admin",
   };
   if (
     usertype == Role.admin ||
@@ -102,6 +116,3 @@ router.delete("/lead/:id", async (request, response) => {
 });
 
 export default router;
-
-
-
