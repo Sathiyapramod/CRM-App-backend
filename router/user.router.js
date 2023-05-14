@@ -1,4 +1,5 @@
 import express from "express";
+import { client } from "../index.js";
 import { auth } from "../middleware/auth.js";
 import {
   getUsers,
@@ -40,7 +41,7 @@ router.get("/userlist/:id", async (request, response) => {
 
 //to edit particular user
 
-router.put("/edituser/:id", async (request, response) => {
+router.put("/edituser/:id", auth, async (request, response) => {
   const usertype = request.header("usertype");
   const Role = {
     manager: "manager",
@@ -61,7 +62,7 @@ router.put("/edituser/:id", async (request, response) => {
 });
 
 //to delete a particular user
-router.delete("/deleteuser/:id", async (request, response) => {
+router.delete("/deleteuser/:id", auth, async (request, response) => {
   const usertype = request.header("usertype");
   const Role = {
     manager: "manager",
@@ -78,6 +79,21 @@ router.delete("/deleteuser/:id", async (request, response) => {
   } else {
     response.status(401).send({ message: "Unauthorized Access !!" });
   }
+});
+
+router.get("/headcount", async (req, res) => {
+  const getHeadCount = await client
+    .db("crm")
+    .collection("signupusers")
+    .aggregate([
+      {
+        $group: { _id: "$usertype", count: { $sum: 1 } },
+      },
+    ])
+    .toArray();
+  getHeadCount
+    ? res.send(getHeadCount)
+    : res.status(401).send({ message: "Failed to load Head Count data" });
 });
 
 export default router;
