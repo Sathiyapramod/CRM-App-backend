@@ -11,6 +11,7 @@ import express from "express";
 import contactRouter from "./router/contact.router.js";
 import leadRouter from "./router/lead.router.js";
 import userRouter from "./router/user.router.js";
+import service from "./router/service.router.js";
 
 dotenv.config();
 
@@ -26,6 +27,7 @@ app.use(express.json());
 app.use("/contact", contactRouter);
 app.use("/lead", leadRouter);
 app.use("/user", userRouter);
+app.use("/service", service);
 
 const PORT = process.env.PORT;
 
@@ -226,128 +228,6 @@ app.post("/adduser", async (request, response) => {
       ? response.send({ message: "User added Successfully" })
       : response.send({ message: "Failed to add user !!" });
   } else response.status(401).send({ message: "Unauthorized Access " });
-});
-
-//Service Requests CRUD applications
-
-//Create service request
-
-app.post("/service", async (request, response) => {
-  const usertype = request.header("usertype");
-  const Role = {
-    manager: "manager",
-    employee: "employee",
-    admin: "admin",
-  };
-
-  if (usertype == Role.manager) {
-    const newService = request.body;
-    const data = await client
-      .db("crm")
-      .collection("services")
-      .insertMany(newService);
-    data
-      ? response.send({ message: "Created Service Request Successfully !" })
-      : response
-          .status(404)
-          .send({ message: "Failed to create Service Request" });
-  } else response.status(401).send({ message: "Unauthorized Access" });
-});
-
-//GET all Service Requests
-app.get("/service", async (request, response) => {
-  const usertype = request.header("usertype");
-  const Role = {
-    manager: "manager",
-    employee: "employee",
-    admin: "admin",
-  };
-  if (
-    usertype == Role.admin ||
-    usertype == Role.manager ||
-    usertype == Role.employee
-  ) {
-    const data = await client
-      .db("crm")
-      .collection("services")
-      .find({})
-      .toArray();
-    data
-      ? response.send(data)
-      : response
-          .status(404)
-          .send({ message: "Failed to get Service requests" });
-  } else response.status(401).send({ message: "Unauthorized Access" });
-});
-
-app.get("/service/:id", async (request, response) => {
-  const usertype = request.header("usertype");
-  const Role = {
-    manager: "manager",
-    employee: "employee",
-    admin: "admin",
-  };
-  if (
-    usertype == Role.employee ||
-    usertype == Role.manager ||
-    usertype == Role.admin
-  ) {
-    const { id } = request.params;
-    const data = await client
-      .db("crm")
-      .collection("services")
-      .findOne({ _id: new ObjectId(id) });
-    data
-      ? response.send(data)
-      : response
-          .status(404)
-          .send({ message: "Failed to get Service requests" });
-  } else response.status(401).send({ message: "Unauthorized Access" });
-});
-
-//UPDATE a Service Requests
-app.put("/service/:id", async (request, response) => {
-  const usertype = request.header("usertype");
-  const Role = {
-    manager: "manager",
-    employee: "employee",
-    admin: "admin",
-  };
-
-  if (usertype != Role.employee || usertype != Role.admin) {
-    const { id } = request.params;
-    const updatedService = request.body;
-    const servicefromDB = await client
-      .db("crm")
-      .collection("services")
-      .updateOne({ _id: new ObjectId(id) }, { $set: updatedService });
-    servicefromDB.modifiedCount == 1
-      ? response.send({ message: "Updated Service Request Successfully " })
-      : response.status(404).send({ message: "Failed to Update Request" });
-  } else response.status(401).send({ message: "Unauthorized Access" });
-});
-
-//DELETE a particular Service Request by id
-
-app.delete("/service/:id", async (request, response) => {
-  const usertype = request.header("usertype");
-  const Role = {
-    manager: "manager",
-    employee: "employee",
-    admin: "admin",
-  };
-  if (usertype != Role.employee || usertype != Role.admin) {
-    const { id } = request.params;
-    const data = await client
-      .db("crm")
-      .collection("services")
-      .deleteOne({ _id: new ObjectId(id) });
-    data.deletedCount == 1
-      ? response.send({ message: "Deleted Successfully !!" })
-      : response
-          .status(404)
-          .send({ message: "Faild to Delete Service Request" });
-  } else response.status(401).send({ message: "Unauthorized Access" });
 });
 
 app.listen(PORT, () =>
