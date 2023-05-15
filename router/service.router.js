@@ -1,6 +1,5 @@
 import express from "express";
 import { client } from "../index.js";
-import { auth } from "../middleware/auth.js";
 
 const service = express.Router();
 
@@ -17,11 +16,17 @@ service.post("/", async (request, response) => {
   };
 
   if (usertype == Role.manager) {
-    const newService = request.body;
+    const { name, date, description } = request.body;
+    console.log(date);
     const data = await client
       .db("crm")
       .collection("services")
-      .insertMany(newService);
+      .insertOne({
+        name,
+        date: new Date(date),
+        description,
+      });
+    console.log(data);
     data
       ? response.send({ message: "Created Service Request Successfully !" })
       : response
