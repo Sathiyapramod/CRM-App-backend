@@ -9,23 +9,6 @@ import {
 } from "../service/contact.service.js";
 const router = express.Router();
 
-//DELETE a new Contact by id
-router.delete("/:id", auth, async (request, response) => {
-  const usertype = request.header("usertype");
-  const Role = {
-    manager: "manager",
-    employee: "employee",
-    admin: "admin",
-  };
-  if (usertype == Role.admin) {
-    const { id } = request.params;
-    const data = await deleteContactbyId(id);
-    data.deletedCount == 1
-      ? response.send({ message: "Contact Deleted Successfully !!" })
-      : response.status(404).send({ message: "Faild to Delete Contact " });
-  } else response.status(401).send({ message: "Unauthorized Access" });
-});
-
 //UPDATE a new Contact by id
 router.put("/contact/:id", auth, async (request, response) => {
   const usertype = request.header("usertype");
@@ -103,6 +86,23 @@ router.post("/", auth, async (request, response) => {
       : response
           .status(404)
           .send({ message: "Failed to create Contact Request" });
+  } else response.status(401).send({ message: "Unauthorized Access" });
+});
+
+//DELETE a new Contact by id
+router.delete("/:id", auth, async (request, response) => {
+  const usertype = request.header("usertype");
+  const Role = {
+    manager: "manager",
+    employee: "employee",
+    admin: "admin",
+  };
+  if (usertype == Role.admin) {
+    const { id } = request.params;
+    const data = await deleteContactbyId(id);
+    data.deletedCount == 1
+      ? response.send({ message: "Contact Deleted Successfully !!" })
+      : response.status(404).send({ message: "Faild to Delete Contact " });
   } else response.status(401).send({ message: "Unauthorized Access" });
 });
 
