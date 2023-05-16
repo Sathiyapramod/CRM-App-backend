@@ -8,43 +8,34 @@ const service = express.Router();
 //Create service request
 
 service.post("/", async (request, response) => {
-  const usertype = request.header("usertype");
-  const Role = {
-    manager: "manager",
-    employee: "employee",
-    admin: "admin",
-  };
-
-  if (usertype == Role.manager || usertype == Role.employee) {
-    const {
+  const {
+    isCreated,
+    isReleased,
+    isCompleted,
+    isOpen,
+    name,
+    date,
+    description,
+  } = request.body;
+  console.log(name);
+  const data = await client
+    .db("crm")
+    .collection("services")
+    .insertOne({
       isCreated,
-      isReleased,
       isCompleted,
       isOpen,
+      isReleased,
       name,
-      date,
+      date: new Date(date),
       description,
-    } = request.body;
-    console.log(date);
-    const data = await client
-      .db("crm")
-      .collection("services")
-      .insertOne({
-        isCreated,
-        isCompleted,
-        isOpen,
-        isReleased,
-        name,
-        date: new Date(date),
-        description,
-      });
-    console.log(data);
-    data
-      ? response.send({ message: "Created Service Request Successfully !" })
-      : response
-          .status(404)
-          .send({ message: "Failed to create Service Request" });
-  } else response.status(401).send({ message: "Unauthorized Access" });
+    });
+  console.log(data);
+  data
+    ? response.send({ message: "Created Service Request Successfully !" })
+    : response
+        .status(404)
+        .send({ message: "Failed to create Service Request" });
 });
 
 //GET all Service Requests
