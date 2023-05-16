@@ -7,35 +7,33 @@ const service = express.Router();
 
 //Create service request
 
-service.post("/", async (request, response) => {
+service.post("/", async (req, res) => {
   const {
     isCreated,
     isReleased,
     isCompleted,
     isOpen,
     name,
-    date,
     description,
-  } = request.body;
-  console.log(name);
-  const data = await client
+    date,
+  } = req.body;
+  console.log(req.body);
+
+  const insertNewService = await client
     .db("crm")
     .collection("services")
     .insertOne({
       isCreated,
-      isCompleted,
-      isOpen,
       isReleased,
+      isOpen,
+      isCompleted,
       name,
-      date: new Date(date),
       description,
+      date: new Date(date),
     });
-  console.log(data);
-  data
-    ? response.send({ message: "Created Service Request Successfully !" })
-    : response
-        .status(404)
-        .send({ message: "Failed to create Service Request" });
+  insertNewService
+    ? res.send({ message: "New Service created" })
+    : res.status(401).send({ message: "Failed to create Service" });
 });
 
 //GET all Service Requests
