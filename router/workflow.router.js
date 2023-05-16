@@ -17,7 +17,7 @@ workflow.get("/get/", async (req, res) => {
     : res.status(401).send({ message: "Failed to load workflow data" });
 });
 
-//get workflow by ID
+//get workflow by name
 
 workflow.get("/get/:id", async (req, res) => {
   const { id } = req.params;
@@ -91,7 +91,7 @@ workflow.put("/addition/:id", async (req, res) => {
   const { id } = req.params; //Concerned Username will be used to send approval
   console.log(id);
 
-  const { isCreated, isReleased, isCompleted, isOpen, name, description } =
+  const { isCreated, isReleased, isCompleted, isOpen, name, description, date } =
     req.body;
 
   const checkUserinDB = await client
@@ -124,6 +124,7 @@ workflow.put("/addition/:id", async (req, res) => {
               isOpen,
               name,
               description,
+              date: new Date(date)
             },
           }
         );
