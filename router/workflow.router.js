@@ -110,13 +110,14 @@ workflow.put("/addition/:id", async (req, res) => {
     if (isCreated != 1 || isReleased != 1 || isCompleted != 1 || isOpen != 1) {
       const updatedWorkflow = await client
         .db("crm")
-        .collection("signupusers")
+        .collection("workflow")
         .updateOne(
           { _id: new ObjectId(id) },
           {
             $push: { workflow: req.body },
           }
         );
+      console.log(updatedWorkflow);
       const ServiceRequestUpdation = await client
         .db("crm")
         .collection("services")
