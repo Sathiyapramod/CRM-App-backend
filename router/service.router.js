@@ -7,7 +7,7 @@ const service = express.Router();
 
 //Create service request
 
-service.post("/", async (request, response) => {
+service.post("/:id", async (request, response) => {
   const usertype = request.header("usertype");
   const Role = {
     manager: "manager",
@@ -16,12 +16,17 @@ service.post("/", async (request, response) => {
   };
 
   if (usertype == Role.manager) {
+    const { id } = request.params;
     const { name, date, description } = request.body;
     console.log(date);
     const data = await client
       .db("crm")
       .collection("services")
       .insertOne({
+        isCreated: 1,
+        isReleased: 0,
+        isCompleted: 0,
+        isOpen: 0,
         name,
         date: new Date(date),
         description,

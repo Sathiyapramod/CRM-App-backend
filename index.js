@@ -12,6 +12,7 @@ import contactRouter from "./router/contact.router.js";
 import leadRouter from "./router/lead.router.js";
 import userRouter from "./router/user.router.js";
 import service from "./router/service.router.js";
+import workflow from "./router/workflow.router.js";
 
 dotenv.config();
 
@@ -28,6 +29,7 @@ app.use("/contact", contactRouter);
 app.use("/lead", leadRouter);
 app.use("/user", userRouter);
 app.use("/service", service);
+app.use("/workflow", workflow);
 
 const PORT = process.env.PORT;
 
