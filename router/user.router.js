@@ -62,7 +62,7 @@ router.put("/edituser/:id", auth, async (request, response) => {
 });
 
 //to delete a particular user
-router.delete("/:id", auth, async (request, response) => {
+router.delete("/deleteuser/:id", auth, async (request, response) => {
   const usertype = request.header("usertype");
   const Role = {
     manager: "manager",
