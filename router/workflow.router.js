@@ -40,7 +40,7 @@ workflow.get("/get/:id", async (req, res) => {
 //workflow creation
 
 workflow.post("/", async (req, res) => {
-  //input as employee Name
+  //input provided as employee Name
   //Only Admin can initiate workflow for all Staffs/manager
 
   const { empName } = req.body;
@@ -66,7 +66,7 @@ workflow.post("/", async (req, res) => {
       newWorkflow
         ? res.send({ message: "Creation Access Enabled for User" })
         : res.status(401).send({ message: "Please check again " });
-    } else if (userRole == "manager") {
+    } else if (userRole == "manager" || userRole == "admin") {
       const newWorkflow = await client
         .db("crm")
         .collection("workflow")
