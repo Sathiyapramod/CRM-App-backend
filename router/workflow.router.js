@@ -91,8 +91,15 @@ workflow.put("/addition/:id", async (req, res) => {
   const { id } = req.params; //Concerned Username will be used to send approval
   console.log(id);
 
-  const { isCreated, isReleased, isCompleted, isOpen, name, description, date } =
-    req.body;
+  const {
+    isCreated,
+    isReleased,
+    isCompleted,
+    isOpen,
+    name,
+    description,
+    date,
+  } = req.body;
 
   const checkUserinDB = await client
     .db("crm")
@@ -124,7 +131,7 @@ workflow.put("/addition/:id", async (req, res) => {
               isOpen,
               name,
               description,
-              date: new Date(date)
+              date: new Date(date),
             },
           }
         );
