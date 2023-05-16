@@ -89,8 +89,7 @@ workflow.post("/", async (req, res) => {
 
 workflow.put("/addition/:id", async (req, res) => {
   const { id } = req.params; //Concerned Username will be used to send approval
-  console.log(id);
-
+  // console.log(id);
   const {
     isCreated,
     isReleased,
