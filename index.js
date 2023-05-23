@@ -94,6 +94,7 @@ app.post("/login", async (request, response) => {
       usertype: userfromDB.usertype,
       firstname: userfromDB.firstname,
       lastname: userfromDB.lastname,
+      id: userfromDB._id
     });
   }
 });
@@ -177,7 +178,7 @@ app.post("/forgotpassword", async (request, response) => {
   });
 });
 //verification
-app.post("/verification/:id", async (request, response) => {
+app.post("/verification", async (request, response) => {
   const passcode = request.body;
   const { id } = request.params;
   const data = await client
