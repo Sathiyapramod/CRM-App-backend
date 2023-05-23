@@ -132,7 +132,8 @@ app.get("/members", auth, async (request, response) => {
 //step6 : confirmation response to use
 
 //forgot password
-app.post("/mail", async (request, response) => {
+
+app.post("/forgotpassword", async (request, response) => {
   const mail = request.body;
   console.log(mail);
   const datafromDB = await client
