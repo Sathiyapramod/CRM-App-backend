@@ -17,8 +17,8 @@ import workflow from "./router/workflow.router.js";
 dotenv.config();
 
 const options = {
-  min: 1000,
-  max: 9999,
+  min: 100000,
+  max: 999999,
   integer: true,
 };
 
@@ -158,8 +158,9 @@ app.post("/forgotpassword", async (request, response) => {
   let composemail = {
     from: "",
     to: `${mail.email}`,
-    subject: "send mail using node js",
-    text: `${randomNumber}`,
+    subject: "CRM App - One Time Password for Verification - Reg. ",
+    text: `Your Approved One-time Password is ${randomNumber}`,
+    html: `<p>Your Approved One-time Password is <b>${randomNumber}</b></p>`,
   };
   sender.sendMail(composemail, function (error, info) {
     if (error) {
